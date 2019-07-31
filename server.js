@@ -20,15 +20,16 @@ app.post('/post', function (req, res) {
     body: req.body,
     match,
   });
-  res = res.status(match ? 200 : 403);
-  res.send(req.body);
+  if (!match) {
+    res.sendStatus(403);
+  } else {
+    res.sendStatus(200);
+  }
 });
 
 app.get('/', function (req, res) {
   res.json(array.slice());
 });
-
-
 
 app.listen(7000, function () {
   console.log('Example app listening on port 7000!');
