@@ -15,7 +15,12 @@ app.use(bodyParser.text({
 
 app.post('/post', function (req, res) {
   const signature = crypto.createHmac('sha1', secret).update(req.body).digest('hex');
-  const match = (signature === req.headers['x-elateral-signature']) || !req.headers['x-elateral-signature'];
+  let match = false;
+  const sign = req.headers['x-elateral-signature'];
+  const hash = sign ? sign.match(/sha1=([a-zA-Z0-9]+)/)[1] : null;
+  if (hash === signature || hash === null) {
+    match = true;
+  }
   array.push({
     headers: req.headers,
     body: req.body,
