@@ -1,7 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const crypto = require('crypto');
-var https = require('https')
 
 const array = [];
 const secret = 'secret';
@@ -16,8 +15,13 @@ app.use(bodyParser.text({
 app.post('/post', function (req, res) {
   const signature = crypto.createHmac('sha1', secret).update(req.body).digest('hex');
   let match = false;
+  let hash;
   const sign = req.headers['x-elateral-signature'];
-  const hash = sign ? sign.match(/sha1=([a-zA-Z0-9]+)/)[1] : null;
+  if (sign && sign.match(/sha1=([a-zA-Z0-9]+)/) && sign.match(/sha1=([a-zA-Z0-9]+)/)[1]) {
+    hash = sign.match(/sha1=([a-zA-Z0-9]+)/)[1];
+  } else if (!sign) {
+    hash = null;
+  }
   if (hash === signature || hash === null) {
     match = true;
   }
