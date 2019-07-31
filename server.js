@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const crypto = require('crypto');
+var https = require('https')
 
 const array = [];
 const secret = 'secret';
@@ -31,6 +32,6 @@ app.get('/', function (req, res) {
   res.json(array.slice());
 });
 
-app.listen(7000, function () {
+app.listen(process.env.PORT || 7000, function () {
   console.log('Example app listening on port 7000!');
 });
