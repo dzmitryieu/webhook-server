@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const crypto = require('crypto');
 
 let array = [];
-let arrayForRretry = [];
+let arrayForRetry = [];
 let trycount = 0;
 
 const app = express();
@@ -52,7 +52,7 @@ app.post('/post/turn', function (req, res) {
   if (hash === signature || hash === null) {
     match = true;
   }
-  arrayForRretry.push({
+  arrayForRetry.push({
     headers: req.headers,
     body: JSON.parse(req.body),
     match,
@@ -71,16 +71,25 @@ app.get('/cleararray', function (req, res) {
 });
 
 app.get('/cleararrayturn', function (req, res) {
-  arrayForRretry = []
-  res.json(arrayForRretry.slice());
+  arrayForRetry = []
+  res.json(arrayForRetry.slice());
 });
 
 app.get('/', function (req, res) {
-  res.json(array.slice());
+  res.json({
+    routes: [
+      '/post',
+      '/post/turn',
+      '/cleararray',
+      '/cleararrayturn',
+      '/retry'
+    ],
+    reports: array.slice()
+  });
 });
 
-app.get('/', function (req, res) {
-  res.json(arrayForRretry.slice());
+app.get('/retry', function (req, res) {
+  res.json(arrayForRetry.slice());
 })
 
 app.listen(process.env.PORT || 7000, function () {
