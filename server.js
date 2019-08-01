@@ -5,7 +5,6 @@ const crypto = require('crypto');
 let array = [];
 let arrayForRretry = [];
 let trycount = 0;
-const secret = 'secret';
 
 const app = express();
 app.use(bodyParser.text({
@@ -15,7 +14,7 @@ app.use(bodyParser.text({
 }));
 
 app.post('/post', function (req, res) {
-  const signature = crypto.createHmac('sha1', secret).update(req.body).digest('hex');
+  const signature = req.query.secret ? crypto.createHmac('sha1', req.query.secret).update(req.body).digest('hex') : null;
   let match = false;
   let hash;
   const sign = req.headers['x-elateral-signature'];
@@ -29,7 +28,7 @@ app.post('/post', function (req, res) {
   }
   array.push({
     headers: req.headers,
-    body: req.body,
+    body: JSON.parse(req.body),
     match,
     date: new Date(),
   });
@@ -41,7 +40,7 @@ app.post('/post', function (req, res) {
 });
 
 app.post('/post/turn', function (req, res) {
-  const signature = crypto.createHmac('sha1', secret).update(req.body).digest('hex');
+  const signature = req.query.secret ? crypto.createHmac('sha1', req.query.secret).update(req.body).digest('hex') : null;
   let match = false;
   let hash;
   const sign = req.headers['x-elateral-signature'];
@@ -55,7 +54,7 @@ app.post('/post/turn', function (req, res) {
   }
   arrayForRretry.push({
     headers: req.headers,
-    body: req.body,
+    body: JSON.parse(req.body),
     match,
     date: new Date(),
   });
