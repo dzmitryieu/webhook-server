@@ -67,6 +67,9 @@ app.get('/', function (req, res) {
   });
 });
 
+let a = new Error();
+console.log(a.path)
+
 const port = process.env.PORT || 7000;
 app.listen(port, function () {
   console.log(`Example app listening on port ${port}!`);
