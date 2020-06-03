@@ -67,6 +67,23 @@ app.use(fileUpload({
   createParentPath: true
 }));
 
+app.post('/image', (req, res) => {
+  const busboy = new Busboy({ headers: req.headers });
+  busboy.on('file', (fieldname, file, filename) => {
+    console.log('streaming------------->');
+    fstream = fs.createWriteStream(path.join(__dirname, './temp/', filename));
+    file.pipe(fstream);
+    fstream.on('close', () => {
+      console.log('close------------->');
+      res.send('/temp/' + filename);
+    });
+   });
+  busboy.on('finish', function(){
+    console.log('finish, Done parsing form!');
+    res.send('/temp/' + filename);
+  });
+})
+
 app.put('/put', async (req, res) => {
   try {
     console.log('receiving files--------', req.files);
