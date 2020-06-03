@@ -1,15 +1,25 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const crypto = require('crypto');
+const fs = require('fs');
+const path = require('path');
+const Busboy = require('busboy');
+const fileUpload = require('express-fileupload');
+const cors = require('cors');
+const morgan = require('morgan');
 
 let array = [];
 
 const app = express();
-app.use(bodyParser.text({
-  type: function(req) {
-    return 'text';
-  }
-}));
+// app.use(bodyParser.text({
+//   type: function(req) {
+//     return 'text';
+//   }
+// }));
+app.use(cors());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(morgan('dev'));
 
 app.post('/post', function (req, res) {
   const secretOnServerSide = req.query.secret;
@@ -52,9 +62,37 @@ app.post('/post', function (req, res) {
   }
 });
 
+
+app.use(fileUpload({
+  createParentPath: true
+}));
+
+app.put('/put', async (req, res) => {
+  try {
+    console.log('receiving files--------', req.files);
+    let file = req.files.file;
+    console.log('file name--------', file.name);
+    file.mv('./temp/' + file.name);
+    res.sendStatus(200);
+  } catch (e) {
+    console.log('error', e);
+    res.status(500).json(e);
+  }
+});
+
 app.get('/cleararray', function (req, res) {
   array = []
   res.redirect('/');
+});
+
+app.get('/file/:filename', async (req, res) => {
+  try {
+    console.log('returning file name---------->', req.params.filename);
+    const file = await fs.readFileSync(path.join(`./temp/${req.params.filename}`));
+    res.send(file);
+  } catch (e) {
+    res.status(500).json(e);
+  }
 });
 
 app.get('/', function (req, res) {
