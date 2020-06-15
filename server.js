@@ -9,6 +9,7 @@ const cors = require('cors');
 const morgan = require('morgan');
 
 let array = [];
+let isLive = false;
 
 const app = express();
 // app.use(bodyParser.text({
@@ -69,9 +70,14 @@ app.use(fileUpload({
 
 app.put('/put', async (req, res) => {
   try {
+    console.log('headers------------', req.headers);
     console.log('receiving files--------', req.files);
-    let file = req.files.file;
-    file.mv(`./temp/${req.body.filename}`);
+    const { file } = req.files;
+    const dir = path.join(__dirname, './temp');
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir);
+    }
+    file.mv(path.join(__dirname, `./temp/${req.body.filename}`));
     res.sendStatus(200);
   } catch (e) {
     console.log('error', e);
@@ -84,10 +90,37 @@ app.get('/cleararray', function (req, res) {
   res.redirect('/');
 });
 
-app.get('/file/:filename', async (req, res) => {
+
+app.get('/_status', (req, res) => {
+  try {
+    console.log('status----------');
+    if (isLive) {
+      console.log('status---isLive---');
+      res.sendStatus(200);
+    } else {
+      console.log('status---NotLive--');
+      res.sendStatus(500);
+    }
+  } catch (e) {
+    console.log(e);
+    res.status(500).json(e);
+  }
+});
+
+app.get('/files/:filename', async (req, res) => {
   try {
     console.log('returning file name---------->', req.params.filename);
-    const file = await fs.readFileSync(path.join(`./temp/${req.params.filename}`));
+    const file = await fs.readFileSync(path.join(__dirname, `./temp/${req.params.filename}`));
+    res.send(file);
+  } catch (e) {
+    res.status(500).json(e);
+  }
+});
+
+app.get('/file/test-image/:filename', async (req, res) => {
+  try {
+    console.log('returning file name---------->', req.params.filename);
+    const file = await fs.readFileSync(path.join(`./test-image/${req.params.filename}.pdf`));
     res.send(file);
   } catch (e) {
     res.status(500).json(e);
@@ -106,5 +139,6 @@ app.get('/', function (req, res) {
 
 const port = process.env.PORT || 7000;
 app.listen(port, function () {
+  isLive = true;
   console.log(`Example app listening on port ${port}!`);
 });
