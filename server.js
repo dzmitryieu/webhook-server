@@ -71,7 +71,14 @@ app.use(fileUpload({
 app.put('/put', async (req, res) => {
   try {
     console.log('headers------------', req.headers);
-    console.log('receiving files--------', req.files);
+    console.log('receiving files--------');
+    const data = {
+      data: req.files.file.data,
+      size: req.files.file.size,
+      mimetype: req.files.file.mimetype,
+      filename: req.body.filename,
+    }
+    console.log('file:', data);
     const { file } = req.files;
     const dir = path.join(__dirname, './temp');
     if (!fs.existsSync(dir)) {
@@ -79,6 +86,17 @@ app.put('/put', async (req, res) => {
     }
     file.mv(path.join(__dirname, `./temp/${req.body.filename}`));
     res.sendStatus(200);
+  } catch (e) {
+    console.log('error', e);
+    res.status(500).json(e);
+  }
+});
+
+app.put('/fail', async (req, res) => {
+  try {
+    console.log('headers------------', req.headers);
+    console.log('returning 500 error------');
+    res.sendStatus(500);
   } catch (e) {
     console.log('error', e);
     res.status(500).json(e);
