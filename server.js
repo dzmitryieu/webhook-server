@@ -92,6 +92,26 @@ app.put('/put', async (req, res) => {
   }
 });
 
+app.put('/put2', async (req, res) => {
+  try {
+    console.log('headers------------', req.headers);
+    console.log('receiving files--------');
+    const filename = req.headers['file-name'] || 'a_file';
+    const dir = path.join(__dirname, './temp');
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir);
+    }
+    const filePath = path.join(__dirname, `./temp/${filename}`);
+    const fd = fs.openSync(filePath, 'w');
+    fs.writeSync(fd, req.body, 0, req.body.length, null);
+    fs.closeSync(fd);
+    res.sendStatus(200);
+  } catch (e) {
+    console.log('error-----------------', e);
+    res.status(500).json(e);
+  }
+});
+
 app.put('/fail', async (req, res) => {
   try {
     console.log('headers------------', req.headers);
